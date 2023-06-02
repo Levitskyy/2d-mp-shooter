@@ -50,9 +50,8 @@ public class GunScript : MonoBehaviour, IProjectileWeapon
         projectileController.ProjectileOwner = gameObject;
         projectileController.Damage = Damage;
         projectileController.MoveSpeed = ProjectileSpeed;
-        projectileController.MoveVector = playerController.LastNonZeroMoveVector;
+        projectileController.MoveVector = playerController.LastNonZeroMoveVector.normalized;
         projectileController.FlightDuration = ProjectileFlightDuration;
-        StartCoroutine(projectileController.FlightCoroutine(ProjectileFlightDuration));
         if (--Capacity <= 0) Reload();
     }
 

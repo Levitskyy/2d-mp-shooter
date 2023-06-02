@@ -9,22 +9,19 @@ public class ProjectileScript : MonoBehaviour, IProjectile
     public float MoveSpeed {get; set;} = 0;
     public Vector2 MoveVector {get; set;} = new Vector2(0, 0);
     public float FlightDuration {get; set;} = 0;
+    private float spawnTime;
 
 
     void Start() {
         var localScale = transform.localScale;
         transform.SetParent(null);
         transform.localScale = localScale;
+        spawnTime = Time.time;
     }
 
     void FixedUpdate() {
         transform.Translate(MoveVector * MoveSpeed, Space.World);
-    }
-
-    public IEnumerator FlightCoroutine(float flightDuration) {
-        yield return new WaitForSeconds(flightDuration);
-        if (gameObject == null) yield break;
-        Destroy(gameObject);
+        if (Time.time - spawnTime > FlightDuration) Destroy(gameObject);
     }
 
     public void OnTriggerEnter2D(Collider2D other) {
