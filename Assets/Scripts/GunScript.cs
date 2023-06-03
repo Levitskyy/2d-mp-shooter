@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class GunScript : MonoBehaviour, IProjectileWeapon
+public class GunScript : NetworkBehaviour, IProjectileWeapon
 {
     [SerializeField] private Transform fireTransform;
     [SerializeField] private GameObject projectilePrefab;
@@ -30,8 +31,11 @@ public class GunScript : MonoBehaviour, IProjectileWeapon
     public float ProjectileFlightDuration {get => projectileFlightDuration; set => projectileFlightDuration = value;}
     private PlayerController playerController;
     private float lastShotTime = 0;
-    void Start()
+    public override void OnNetworkSpawn()
     {
+        if (!IsOwner) {
+            fireButton.gameObject.SetActive(false);
+        }
         playerController = transform.parent.GetComponent<PlayerController>();
         Capacity = MaxCapacity;
     }
@@ -40,7 +44,7 @@ public class GunScript : MonoBehaviour, IProjectileWeapon
         if (fireButton.IsFireButtonHeldOn &&
             Capacity > 0 &&
             Time.time - lastShotTime > fireRate) {
-                Shoot();
+                ShootServerRpc();
             }
     }
 
@@ -62,5 +66,15 @@ public class GunScript : MonoBehaviour, IProjectileWeapon
     private IEnumerator ReloadCoroutine(float reloadTime) {
         yield return new WaitForSeconds(reloadTime);
         Capacity = MaxCapacity;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void ShootServerRpc() {
+        ShootClientRpc();
+    }
+
+    [ClientRpc]
+    public void ShootClientRpc() {
+        Shoot();
     }
 }

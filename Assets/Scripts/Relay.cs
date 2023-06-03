@@ -40,7 +40,6 @@ public class Relay : MonoBehaviour
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
             NetworkManager.Singleton.StartHost();
             Debug.Log("join code: " + joinCode);
-            Debug.Log("SPAWN HOST");
             PlayerSpawner.Singleton.SpawnPlayerServerRpc();
         } catch (RelayServiceException e){
             Debug.Log(e);
@@ -53,7 +52,6 @@ public class Relay : MonoBehaviour
             RelayServerData relayServerData = new RelayServerData(joinAllocation, "dtls");
             NetworkManager.Singleton.OnClientConnectedCallback += (ulong u) => {
                 PlayerSpawner.Singleton.SpawnPlayerServerRpc();
-                Debug.Log("SPAWN CLIENT");
             };
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);      
             NetworkManager.Singleton.StartClient();

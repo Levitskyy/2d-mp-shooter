@@ -22,13 +22,14 @@ public class PlayerSpawner : NetworkBehaviour {
 
     [ServerRpc(RequireOwnership=false)]
     public void SpawnPlayerServerRpc(ServerRpcParams serverRpcParams = default) {
-        Debug.Log("SPAWNED");
+        GameManager.Singleton.PlayersCount++;
         GameObject newPlayer;
         newPlayer=(GameObject)Instantiate(playerPrefab);
         newPlayer.transform.position = playerSpawnPoints[playersSpawned++].position;
         newPlayer.GetComponent<SpriteRenderer>().color = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));
         netObj=newPlayer.GetComponent<NetworkObject>();
         newPlayer.SetActive(true);
+        newPlayer.name = newPlayer.name + playersSpawned.ToString();
         var clientId = serverRpcParams.Receive.SenderClientId;
         netObj.SpawnAsPlayerObject(clientId,true);
     }

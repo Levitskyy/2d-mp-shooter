@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 public class ProjectileScript : MonoBehaviour, IProjectile
@@ -12,7 +13,7 @@ public class ProjectileScript : MonoBehaviour, IProjectile
     private float spawnTime;
 
 
-    void Start() {
+    public void Start() {
         var localScale = transform.localScale;
         transform.SetParent(null);
         transform.localScale = localScale;
@@ -26,7 +27,7 @@ public class ProjectileScript : MonoBehaviour, IProjectile
 
     public void OnTriggerEnter2D(Collider2D other) {
         if (other.tag == "Player") {
-            other.GetComponent<PlayerHealth>().Health -= Damage;
+            other.GetComponent<PlayerHealth>().GetDamageServerRpc(Damage / GameManager.Singleton.PlayersCount);
             Destroy(gameObject);
         }
         if (other.tag == "Obstacle") Destroy(gameObject);
