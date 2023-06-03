@@ -4,7 +4,7 @@ using Unity.Netcode;
 using UnityEngine;
 
 public class PlayerSpawner : NetworkBehaviour {
-    [SerializeField] private GameObject playerPrefab; //add prefab in inspector
+    [SerializeField] private GameObject playerPrefab;
     [SerializeField] private Transform[] playerSpawnPoints;
     private NetworkObject netObj;
     private int playersSpawned = 0;
@@ -22,9 +22,11 @@ public class PlayerSpawner : NetworkBehaviour {
 
     [ServerRpc(RequireOwnership=false)]
     public void SpawnPlayerServerRpc(ServerRpcParams serverRpcParams = default) {
+        Debug.Log("SPAWNED");
         GameObject newPlayer;
         newPlayer=(GameObject)Instantiate(playerPrefab);
         newPlayer.transform.position = playerSpawnPoints[playersSpawned++].position;
+        newPlayer.GetComponent<SpriteRenderer>().color = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));
         netObj=newPlayer.GetComponent<NetworkObject>();
         newPlayer.SetActive(true);
         var clientId = serverRpcParams.Receive.SenderClientId;

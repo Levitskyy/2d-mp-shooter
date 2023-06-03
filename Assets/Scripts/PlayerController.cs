@@ -18,12 +18,12 @@ public class PlayerController : NetworkBehaviour
     }
 
     void Update() {
-        //if (!IsOwner) return;
+        if (!IsOwner) return;
         HandlePlayerMovement();
     }
 
     void FixedUpdate() {
-        //if (!IsOwner) return;
+        if (!IsOwner) return;
         
         transform.Translate(moveVector * moveSpeed, Space.World);
     }
