@@ -10,14 +10,10 @@ public class PlayerController : NetworkBehaviour
     private Rigidbody2D rb;
     private CircleCollider2D col;
     private Vector2 moveVector;
-    private NetworkVariable<Vector2> lastNonZeroMoveVector = new NetworkVariable<Vector2>(new Vector2(1, 0),
-                                                                                         NetworkVariableReadPermission.Everyone,
-                                                                                         NetworkVariableWritePermission.Owner);
-
-    public Vector2 LastNonZeroMoveVector {
-        get => lastNonZeroMoveVector.Value;
-        set => lastNonZeroMoveVector.Value = value;
-    }
+    public NetworkVariable<Vector2> LastNonZeroMoveVector = new NetworkVariable<Vector2>(
+        new Vector2(1f, 0f),
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Owner);
     public override void OnNetworkSpawn() {
         if (!IsOwner) {
             joystick.gameObject.SetActive(false);
@@ -42,7 +38,7 @@ public class PlayerController : NetworkBehaviour
 
         // set rotation
         if (moveVector.x == 0 && moveVector.y == 0) return;
-        LastNonZeroMoveVector = moveVector;
+        LastNonZeroMoveVector.Value = moveVector;
         float zRotation = Mathf.Atan2(-moveVector.x, moveVector.y) * Mathf.Rad2Deg;
         transform.eulerAngles = new Vector3(0, 0, zRotation);
     }

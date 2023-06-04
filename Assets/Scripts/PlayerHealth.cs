@@ -7,42 +7,29 @@ public class PlayerHealth : NetworkBehaviour
 {
     [SerializeField] private GameObject HealthBar;
     [SerializeField] private float MaxHealth = 100f;
-    public float Health {
-        get => health;
-        set {
-            health = value;
-            if (health <= 0) {
-                    Die();
-                    health = 0;
-            }
-            HealthBarSlider.transform.localScale = new Vector3(
-                health * healthBarMaxScale / MaxHealth, 
-                HealthBarSlider.transform.localScale.y,
-                HealthBarSlider.transform.localScale.z
-            );
-        }
-    }
-    private float health;
+    public NetworkVariable<float> Health = new NetworkVariable<float>(100f);
     private float healthBarMaxScale;
     private GameObject HealthBarSlider;
     private GameObject HealthBarCanvas;
     private bool isInstantiated = false;
 
     public override void OnNetworkSpawn() {
-        Debug.Log(gameObject.name + " nspawn");
         InstantiateFields();
     }
 
-    public void Start() {
-        Debug.Log(gameObject.name + " start");
-        InstantiateFields();
+    void OnHealthChanged(float prevValue, float newValue) {
+         HealthBarSlider.transform.localScale = new Vector3(
+                newValue * healthBarMaxScale / MaxHealth, 
+                HealthBarSlider.transform.localScale.y,
+                HealthBarSlider.transform.localScale.z
+            );
     }
-    private void InstantiateFields() {
+    private void InstantiateFields() {    
         isInstantiated = true;
         HealthBarSlider = HealthBar.GetComponent<HealthBarScript>().ScrollBar;
         healthBarMaxScale = HealthBarSlider.transform.localScale.x;
         HealthBarCanvas = HealthBar.transform.parent.gameObject;
-        SetHealthServerRpc(MaxHealth);
+        Health.OnValueChanged += OnHealthChanged;
     }
 
     public void Update() {
@@ -51,25 +38,14 @@ public class PlayerHealth : NetworkBehaviour
         HealthBarCanvas.transform.localPosition = transform.InverseTransformPoint(position);
         HealthBarCanvas.transform.rotation = Quaternion.Inverse(transform.rotation) * transform.rotation;
     }
-    [ServerRpc(RequireOwnership = false)]
-    public void GetDamageServerRpc(float damage) {
-        GetDamageClientRpc(damage);
-    }
 
-    [ClientRpc]
-    public void GetDamageClientRpc(float damage) {
-        SetHealthClientRpc(Health - damage);
+    public void TakeDamage(float damage) {
+        Health.Value -= damage;
+        if (Health.Value <= 0) {
+            Health.Value = 0;
+            Die();
+        }
     }
-    [ServerRpc(RequireOwnership = false)]
-    public void SetHealthServerRpc(float newHealth) {
-        SetHealthClientRpc(newHealth);
-    }
-
-    [ClientRpc]
-    public void SetHealthClientRpc(float newHealth) {
-        Health = newHealth;
-    }
-
 
     private void Die() {
         Debug.Log("DIED");

@@ -30,7 +30,10 @@ public class GunScript : NetworkBehaviour, IProjectileWeapon
     public float ProjectileSpeed {get => projectileSpeed; set => projectileSpeed = value;}
     public float ProjectileFlightDuration {get => projectileFlightDuration; set => projectileFlightDuration = value;}
     private PlayerController playerController;
-    private float lastShotTime = 0;
+    public NetworkVariable<float> LastShotTime = new NetworkVariable<float>(
+        0f,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Owner);
     public override void OnNetworkSpawn()
     {
         if (!IsOwner) {
@@ -41,22 +44,25 @@ public class GunScript : NetworkBehaviour, IProjectileWeapon
     }
 
     void Update() {
+        if (!IsLocalPlayer) return;
+
         if (fireButton.IsFireButtonHeldOn &&
             Capacity > 0 &&
-            Time.time - lastShotTime > fireRate) {
+            NetworkManager.ServerTime.TimeAsFloat - LastShotTime.Value > fireRate) {
+                LastShotTime.Value = NetworkManager.ServerTime.TimeAsFloat;
                 ShootServerRpc();
+                if (--Capacity <= 0) Reload();
             }
     }
 
     public void Shoot() {
-        lastShotTime = Time.time;
         ProjectileScript projectileController = Instantiate(projectilePrefab, fireTransform).GetComponent<ProjectileScript>();
+        var projNetOjb = projectileController.GetComponent<NetworkObject>();
+        projNetOjb.Spawn();
         projectileController.ProjectileOwner = gameObject;
         projectileController.Damage = Damage;
-        projectileController.MoveSpeed = ProjectileSpeed;
-        projectileController.MoveVector = playerController.LastNonZeroMoveVector.normalized;
-        projectileController.FlightDuration = ProjectileFlightDuration;
-        if (--Capacity <= 0) Reload();
+        projectileController.SetVelocity(playerController.LastNonZeroMoveVector.Value.normalized * ProjectileSpeed);
+        projectileController.FlightDuration = ProjectileFlightDuration;     
     }
 
     public void Reload() {
@@ -70,11 +76,6 @@ public class GunScript : NetworkBehaviour, IProjectileWeapon
 
     [ServerRpc(RequireOwnership = false)]
     public void ShootServerRpc() {
-        ShootClientRpc();
-    }
-
-    [ClientRpc]
-    public void ShootClientRpc() {
         Shoot();
     }
 }
