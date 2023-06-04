@@ -13,7 +13,7 @@ public class Relay : MonoBehaviour
 {
     public static Relay Singleton;
 
-    private string joinCode; // Код для присоединения к серверу
+    public string joinCode; // Код для присоединения к серверу
     private async void Start()
     {
         if (Singleton == null) {
@@ -22,6 +22,7 @@ public class Relay : MonoBehaviour
         else {
             Destroy(gameObject);
         }
+        NetworkManager.Singleton.OnClientConnectedCallback += SpawnPlayer;
 
         await UnityServices.InitializeAsync();
 
@@ -30,6 +31,10 @@ public class Relay : MonoBehaviour
             Debug.Log("Signed in " + AuthenticationService.Instance.PlayerId);
         };
        await AuthenticationService.Instance.SignInAnonymouslyAsync(); // Авторизуемся анонимно
+    }
+    public void SpawnPlayer(ulong u) {
+        PlayerSpawner.Singleton.SpawnPlayerServerRpc();
+        Debug.Log("Client connected");
     }
 
     public async void CreateRelay() {
@@ -40,7 +45,7 @@ public class Relay : MonoBehaviour
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
             NetworkManager.Singleton.StartHost();
             Debug.Log("join code: " + joinCode);
-            PlayerSpawner.Singleton.SpawnPlayerServerRpc();
+            //PlayerSpawner.Singleton.SpawnPlayerServerRpc();
         } catch (RelayServiceException e){
             Debug.Log(e);
         }
@@ -50,9 +55,7 @@ public class Relay : MonoBehaviour
         try {
             JoinAllocation joinAllocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
             RelayServerData relayServerData = new RelayServerData(joinAllocation, "dtls");
-            NetworkManager.Singleton.OnClientConnectedCallback += (ulong u) => {
-                PlayerSpawner.Singleton.SpawnPlayerServerRpc();
-            };
+            
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);      
             NetworkManager.Singleton.StartClient();
             

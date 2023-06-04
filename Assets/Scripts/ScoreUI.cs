@@ -6,12 +6,21 @@ using UnityEngine;
 public class ScoreUI : NetworkBehaviour
 {
     public TMPro.TMP_Text scoreText;
+    public TMPro.TMP_Text codeText;
 
     void Start() {
         if (!IsLocalPlayer) {
             scoreText.gameObject.SetActive(false);
-            return;
+            codeText.transform.parent.gameObject.SetActive(false);
         }
         scoreText.text = "0";
+        if (IsLocalPlayer && IsHost) {
+            codeText.transform.parent.gameObject.SetActive(true);
+            codeText.text = Relay.Singleton.joinCode;
+        }
+        else {
+            codeText.transform.parent.gameObject.SetActive(false);
+        }
     }
+
 }

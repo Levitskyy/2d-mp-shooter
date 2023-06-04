@@ -44,7 +44,7 @@ public class GunScript : NetworkBehaviour, IProjectileWeapon
     }
 
     void Update() {
-        if (!IsLocalPlayer) return;
+        if (!IsLocalPlayer || !GameManager.Singleton.IsGameStarted.Value) return;
 
         if (fireButton.IsFireButtonHeldOn &&
             Capacity > 0 &&

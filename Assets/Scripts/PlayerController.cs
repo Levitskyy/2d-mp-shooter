@@ -14,21 +14,39 @@ public class PlayerController : NetworkBehaviour
         new Vector2(1f, 0f),
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Owner);
+    public NetworkVariable<Color> playerColor = new NetworkVariable<Color>(
+        new Color(),
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server);
     public override void OnNetworkSpawn() {
         if (!IsOwner) {
             joystick.gameObject.SetActive(false);
         }
+        if (IsLocalPlayer) {
+            NetworkManager.Singleton.OnClientConnectedCallback -= Relay.Singleton.SpawnPlayer;
+        }
+        if (IsHost && IsOwner) {
+            Debug.Log("HOST INIT");
+            GameManager.Singleton.IsGameStarted.Value = false;
+            GameManager.Singleton.PlayersCount.Value = 1;
+        }
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<CircleCollider2D>();
+        GetComponent<SpriteRenderer>().color = playerColor.Value;
+        playerColor.OnValueChanged += OnColorChanged;
+        
     }
-
+    void OnColorChanged (Color oldValue, Color newValue) {
+        GetComponent<SpriteRenderer>().color = newValue;
+    }
+ 
     void Update() {
-        if (!IsOwner) return;
+        if (!IsOwner || !GameManager.Singleton.IsGameStarted.Value) return;
         HandlePlayerMovement();
     }
 
     void FixedUpdate() {
-        if (!IsOwner) return;
+        if (!IsOwner || !GameManager.Singleton.IsGameStarted.Value) return;
         
         transform.Translate(moveVector * moveSpeed, Space.World);
     }
@@ -44,6 +62,9 @@ public class PlayerController : NetworkBehaviour
     }
 
     public override void OnDestroy() {
-        GameManager.Singleton.PlayersCount--;
+        if (IsServer) {
+            GameManager.Singleton.PlayersCount.Value--;
+        }
+        playerColor.OnValueChanged -= OnColorChanged;
     }
 }

@@ -17,6 +17,11 @@ public class PlayerHealth : NetworkBehaviour
         InstantiateFields();
     }
 
+    public override void OnDestroy()
+    {
+        Health.OnValueChanged -= OnHealthChanged;
+    }
+
     void OnHealthChanged(float prevValue, float newValue) {
          HealthBarSlider.transform.localScale = new Vector3(
                 newValue * healthBarMaxScale / MaxHealth, 
@@ -49,6 +54,7 @@ public class PlayerHealth : NetworkBehaviour
 
     private void Die() {
         Debug.Log("DIED");
+        NetworkObject.Despawn();
     }
 
 

@@ -7,7 +7,7 @@ public class PlayerSpawner : NetworkBehaviour {
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private Transform[] playerSpawnPoints;
     private NetworkObject netObj;
-    private int playersSpawned = 0;
+    public int playersSpawned {get; set;} = 0;
     
     public static PlayerSpawner Singleton;
 
@@ -22,15 +22,15 @@ public class PlayerSpawner : NetworkBehaviour {
 
     [ServerRpc(RequireOwnership=false)]
     public void SpawnPlayerServerRpc(ServerRpcParams serverRpcParams = default) {
-        GameManager.Singleton.PlayersCount++;
+        GameManager.Singleton.PlayersCount.Value++;
         GameObject newPlayer;
         newPlayer=(GameObject)Instantiate(playerPrefab);
-        newPlayer.transform.position = playerSpawnPoints[playersSpawned++].position;
-        newPlayer.GetComponent<SpriteRenderer>().color = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));
+        newPlayer.transform.position = playerSpawnPoints[playersSpawned++].position;  
         netObj=newPlayer.GetComponent<NetworkObject>();
         newPlayer.SetActive(true);
         newPlayer.name = newPlayer.name + playersSpawned.ToString();
         var clientId = serverRpcParams.Receive.SenderClientId;
         netObj.SpawnAsPlayerObject(clientId,true);
+        newPlayer.GetComponent<PlayerController>().playerColor.Value = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));
     }
 }
