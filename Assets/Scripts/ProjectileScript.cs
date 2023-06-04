@@ -13,10 +13,9 @@ public class ProjectileScript : NetworkBehaviour, IProjectile
 
 
     public override void OnNetworkSpawn() {
-        var localScale = transform.localScale;
         transform.SetParent(null);
-        transform.localScale = localScale;
         spawnTime = Time.time;
+        transform.localScale = new Vector3(0.3f, 0.3f, 1);
     }
 
     public void SetVelocity(Vector2 velocity)

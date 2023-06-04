@@ -9,6 +9,7 @@ public class PlayerUI : MonoBehaviour
     [SerializeField] TMPro.TMP_InputField inputField;
     [SerializeField] Button hostButton;
     [SerializeField] Button clientButton;
+    
 
     void Awake() {
 
