@@ -27,6 +27,7 @@ public class CoinSpawner : NetworkBehaviour
     void Update() {
         if (!NetworkManager.Singleton.IsServer) return;
 
+        // Появление монеты через рандомный прометужок времени
         if (Time.time - lastSpawnTime > coinSpawnCoolDown && coinsSpawned < 5) {
             SpawnCoinServerRpc();
             coinSpawnCoolDown = Random.Range(3f, 10f);
@@ -39,6 +40,9 @@ public class CoinSpawner : NetworkBehaviour
         coinsSpawned++;
         GameObject newCoin;
         newCoin =(GameObject)Instantiate(coinPrefab);
+
+        // Появление монеты в случайой точке прямоугольника, заданного 
+        // в инспекторе
         newCoin.transform.position = new Vector3(
             Random.Range(bottomLeftCorner.x, topRightCorner.x),
             Random.Range(bottomLeftCorner.y, topRightCorner.y),

@@ -22,6 +22,7 @@ public class PlayerHealth : NetworkBehaviour
         Health.OnValueChanged -= OnHealthChanged;
     }
 
+    // Изменение полосы здоровья
     void OnHealthChanged(float prevValue, float newValue) {
          HealthBarSlider.transform.localScale = new Vector3(
                 newValue * healthBarMaxScale / MaxHealth, 
@@ -37,6 +38,7 @@ public class PlayerHealth : NetworkBehaviour
         Health.OnValueChanged += OnHealthChanged;
     }
 
+    // Расчёт позиции полосы здоровья (лучше сделать не получилось)
     public void Update() {
         if (!isInstantiated) return;
         Vector3 position = transform.position + new Vector3(0, 1, 0);
@@ -44,6 +46,7 @@ public class PlayerHealth : NetworkBehaviour
         HealthBarCanvas.transform.rotation = Quaternion.Inverse(transform.rotation) * transform.rotation;
     }
 
+    // Получение урона
     public void TakeDamage(float damage) {
         Health.Value -= damage;
         if (Health.Value <= 0) {

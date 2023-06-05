@@ -15,6 +15,7 @@ public class PlayerUI : MonoBehaviour
     [SerializeField] private Button leaveButton;
     
     public static PlayerUI Singleton;
+
     void Awake() {
         if (Singleton == null) {
             Singleton = this;
@@ -34,6 +35,7 @@ public class PlayerUI : MonoBehaviour
             
         });
 
+        // Переход на стартовый экран
         leaveButton.onClick.AddListener( () => {
             NetworkManager.Singleton.Shutdown();
             popUpImage.gameObject.SetActive(false);

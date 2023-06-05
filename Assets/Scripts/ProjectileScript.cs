@@ -36,12 +36,16 @@ public class ProjectileScript : NetworkBehaviour, IProjectile
         }
     } 
 
+    // Все проверки попадания происходят на сервере
+
+    // Перемещение пули и ее уничтожение через определенное время
     void FixedUpdate() {
         transform.Translate(MoveVector, Space.World);
         if (NetworkManager.Singleton.IsServer && NetworkObject.IsSpawned)
             if (Time.time - spawnTime > FlightDuration) NetworkObject.Despawn();
     }
 
+    // Попадание пули в игрока / препятствие
     public void OnTriggerEnter2D(Collider2D other) {
         if (!NetworkManager.Singleton.IsServer || !NetworkObject.IsSpawned) return;
 

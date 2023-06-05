@@ -21,10 +21,12 @@ public class PlayerSpawner : NetworkBehaviour {
     }
 
     [ServerRpc(RequireOwnership=false)]
+    // Создание персонажа и присвоение его игроку
     public void SpawnPlayerServerRpc(ServerRpcParams serverRpcParams = default) {
         GameManager.Singleton.PlayersCount.Value++;
         GameObject newPlayer;
         newPlayer=(GameObject)Instantiate(playerPrefab);
+        // Позиция появления персонажа задаётся в инспекторе юнити
         newPlayer.transform.position = playerSpawnPoints[playersSpawned++].position;  
         netObj=newPlayer.GetComponent<NetworkObject>();
         newPlayer.SetActive(true);

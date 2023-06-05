@@ -10,6 +10,7 @@ public class CoinScript : NetworkBehaviour
         CoinAnimation();
     }
 
+    // Анимаиця монеты
     void CoinAnimation() {
         transform.localScale = new Vector3(
             Mathf.Sin(Time.time * 5) / 4 + 0.25f,
@@ -18,6 +19,7 @@ public class CoinScript : NetworkBehaviour
         );
     }
 
+    // Подбор монеты
     public void OnTriggerEnter2D(Collider2D other) {
         if (!NetworkManager.Singleton.IsServer || !NetworkObject.IsSpawned) return;
 

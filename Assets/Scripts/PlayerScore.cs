@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class PlayerScore : NetworkBehaviour
 {
+    // Количество подобранных игроком монет
     public NetworkVariable<int> Score = new NetworkVariable<int>(0);
 
     public void Start() {
@@ -21,6 +22,7 @@ public class PlayerScore : NetworkBehaviour
         GetComponent<ScoreUI>().scoreText.text = newValue.ToString();
     }
 
+    // Проверка на окончание матча
     void OnGameEnded(int oldValue, int newValue) {
         if (GameManager.Singleton.IsGameStarted.Value && newValue == 1 && NetworkObject.IsSpawned) {
             SendWinnerColorServerRpc(GetComponent<SpriteRenderer>().color, Score.Value);

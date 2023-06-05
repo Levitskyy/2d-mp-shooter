@@ -32,11 +32,12 @@ public class Relay : MonoBehaviour
         };
        await AuthenticationService.Instance.SignInAnonymouslyAsync(); // Авторизуемся анонимно
     }
+    // Функция, выполняемая при присоединении клиента
     public void SpawnPlayer(ulong u) {
         PlayerSpawner.Singleton.SpawnPlayerServerRpc();
         Debug.Log("Client connected");
     }
-
+    // Создание сервера и подключение к нему хоста
     public async void CreateRelay() {
         try {
             Allocation allocation = await RelayService.Instance.CreateAllocationAsync(3);
@@ -45,12 +46,11 @@ public class Relay : MonoBehaviour
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
             NetworkManager.Singleton.StartHost();
             Debug.Log("join code: " + joinCode);
-            //PlayerSpawner.Singleton.SpawnPlayerServerRpc();
         } catch (RelayServiceException e){
             Debug.Log(e);
         }
     }
-
+    // Присоединение к серверу
     public async void JoinRelay(string joinCode) {
         try {
             JoinAllocation joinAllocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
@@ -63,6 +63,7 @@ public class Relay : MonoBehaviour
             Debug.Log(e);
         }
     }
+    // Debug
     public static void ShowConnectedIds() {
         foreach(var item in NetworkManager.Singleton.ConnectedClientsIds) {
             Debug.Log(item);

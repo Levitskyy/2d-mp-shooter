@@ -19,6 +19,8 @@ public class GunScript : NetworkBehaviour, IProjectileWeapon
     public float FireRate {get => fireRate; set => fireRate = value;}
     public float ReloadSpeed {get => reloadSpeed; set => reloadSpeed = value;}
     public int MaxCapacity {get => maxCapacity; set => maxCapacity = value;}
+    
+    // Количество патронов в оружии
     public int Capacity
     {
         get { return capacity; } 
@@ -58,6 +60,8 @@ public class GunScript : NetworkBehaviour, IProjectileWeapon
     public void Shoot() {
         ProjectileScript projectileController = Instantiate(projectilePrefab, fireTransform).GetComponent<ProjectileScript>();
         var projNetOjb = projectileController.GetComponent<NetworkObject>();
+       
+        // Создание пули на всех клиентах
         projNetOjb.Spawn();
         projectileController.ProjectileOwner = gameObject;
         projectileController.Damage = Damage;
@@ -69,6 +73,7 @@ public class GunScript : NetworkBehaviour, IProjectileWeapon
         StartCoroutine(ReloadCoroutine(ReloadSpeed));
     }
 
+    // Перезарядка
     private IEnumerator ReloadCoroutine(float reloadTime) {
         yield return new WaitForSeconds(reloadTime);
         Capacity = MaxCapacity;

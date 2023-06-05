@@ -25,6 +25,7 @@ public class PlayerController : NetworkBehaviour
         if (IsLocalPlayer) {
             NetworkManager.Singleton.OnClientConnectedCallback -= Relay.Singleton.SpawnPlayer;
         }
+        // Инициализация начальных значений игровых параметров
         if (IsHost && IsOwner) {
             Debug.Log("HOST INIT");
             GameManager.Singleton.IsGameStarted.Value = false;
@@ -40,6 +41,8 @@ public class PlayerController : NetworkBehaviour
         GetComponent<SpriteRenderer>().color = newValue;
     }
  
+
+    // Запрет на передвижение, пока в матче менее 2 игроков
     void Update() {
         if (!IsOwner || !GameManager.Singleton.IsGameStarted.Value) return;
         HandlePlayerMovement();
@@ -54,8 +57,9 @@ public class PlayerController : NetworkBehaviour
     private void HandlePlayerMovement() {
         moveVector = new Vector2(joystick.Horizontal, joystick.Vertical);
 
-        // set rotation
         if (moveVector.x == 0 && moveVector.y == 0) return;
+
+        // Вектор перемещения пули
         LastNonZeroMoveVector.Value = moveVector;
         float zRotation = Mathf.Atan2(-moveVector.x, moveVector.y) * Mathf.Rad2Deg;
         transform.eulerAngles = new Vector3(0, 0, zRotation);
